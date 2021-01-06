@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+#include "mainwindow.h"//github backup
 #include "ui_mainwindow.h"
 #include<QFileDialog>
 #include<QtDebug>

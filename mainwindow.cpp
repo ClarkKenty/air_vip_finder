@@ -34,6 +34,7 @@ int HashFunction(int seed)
     return seed%200;
 }
 
+
 int collision_method1(int seed)
 {
     return (seed+1)%200;

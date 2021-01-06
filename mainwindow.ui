@@ -168,7 +168,7 @@ background-color:white;</string>
      <rect>
       <x>60</x>
       <y>240</y>
-      <width>362</width>
+      <width>441</width>
       <height>41</height>
      </rect>
     </property>
@@ -198,6 +198,11 @@ background-color:white;</string>
          <string>Double hashing</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>Quadratic probing</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
@@ -208,6 +213,19 @@ background-color:white;</string>
       </widget>
      </item>
     </layout>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>701</x>
+      <y>260</y>
+      <width>91</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>(表长：200)</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

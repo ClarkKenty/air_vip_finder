@@ -1,4 +1,4 @@
-#include "mainwindow.h"//github backup
+#include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include<QFileDialog>
 #include<QtDebug>
@@ -18,6 +18,7 @@ QVector<QString> airId;
 QVector<QString> date;
 QVector<int> miles;
 QVector<int> hash_table(200,-1);
+int doublecount = 1;
 int (*collision_solve)(int a);
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -29,15 +30,30 @@ MainWindow::MainWindow(QWidget *parent)
     ui->vip_table->QTableView::setSortingEnabled(false);
 }
 
-int HashFunction(int seed)
+int HashFunction(QString seed)
 {
-    return seed%200;
+    std::hash<QString> hash_str;
+    return hash_str(seed)%199;
 }
 
 
 int collision_method1(int seed)
 {
-    return (seed+1)%200;
+    return (seed+1)%199;
+}
+
+int collision_method2(int seed)
+{
+    std::hash<QString> hash_str;
+    return hash_str(QString::number(seed))%199;
+}
+
+int collision_methon3(int seed)
+{
+    if(doublecount>hash_table.size()/2) return 0;
+    int res= (seed+(doublecount*doublecount))%199;
+    doublecount++;
+    return res;
 }
 
 MainWindow::~MainWindow()
@@ -72,13 +88,24 @@ void MainWindow::on_openfile_triggered()
 
 void MainWindow::on_pushButton_clicked()
 {
+    ui->table->setRowCount(0);
+    std::fill(hash_table.begin(),hash_table.end(),-1);
     if(ui->hash_method->currentText()=="Linear probing")
     {
         collision_solve=collision_method1;
     }
+    else if(ui->hash_method->currentText()=="Double hashing")
+    {
+        collision_solve=collision_method2;
+    }
+    else if(ui->hash_method->currentText()=="Quadratic probing")
+    {
+        collision_solve=collision_methon3;
+    }
     for(int i=0;i<idnum.size();i++)
     {
-        int index=HashFunction((idnum[i].midRef(7,3)).toInt());//index为哈希值,hash_table[index]为原始数据的序号.
+        doublecount=1;
+        int index=HashFunction(idnum[i]);//index为哈希值,hash_table[index]为原始数据的序号
         while(hash_table[index]!=-1)
         {
             index=collision_solve(index);
@@ -150,7 +177,7 @@ void MainWindow::on_search_by_ID_triggered()
     QString string = QInputDialog::getText(this,tr("查找"),tr("请输入身份证号："),QLineEdit::Normal,tr("身份证号"),&ok);
     if(ok && string.size()==18)
     {
-        int index=HashFunction(string.midRef(7,3).toInt());
+        int index=HashFunction(string);
         int times=0;
         int res=hash_table[index];
         if(res==-1)
@@ -159,11 +186,12 @@ void MainWindow::on_search_by_ID_triggered()
             errmsg.setText("查找失败！");
             return;
         }
+        doublecount=1;
         while(idnum[res]!=string)
         {
             index=collision_solve(index);
             res=hash_table[index];
-            if(++times==300)
+            if(++times==300 || res==-1)
             {
                 QMessageBox errmsg;
                 errmsg.setText("查找失败！");

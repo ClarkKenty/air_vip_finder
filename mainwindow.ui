@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>703</height>
+    <height>856</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -33,7 +33,7 @@
       <x>30</x>
       <y>280</y>
       <width>751</width>
-      <height>192</height>
+      <height>311</height>
      </rect>
     </property>
     <property name="layoutDirection">
@@ -77,8 +77,8 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>480</y>
+      <x>120</x>
+      <y>600</y>
       <width>271</width>
       <height>31</height>
      </rect>
@@ -94,8 +94,8 @@ font: 75 16pt &quot;Adobe Devanagari&quot;;</string>
    <widget class="QTableWidget" name="vip_table">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>510</y>
+      <x>120</x>
+      <y>640</y>
       <width>541</width>
       <height>141</height>
      </rect>
@@ -190,17 +190,22 @@ background-color:white;</string>
        </property>
        <item>
         <property name="text">
-         <string>Linear probing</string>
+         <string>线性探测法</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Double hashing</string>
+         <string>再散列法</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Quadratic probing</string>
+         <string>平方探测法</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>链地址法</string>
         </property>
        </item>
       </widget>

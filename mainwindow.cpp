@@ -18,6 +18,8 @@ QVector<QString> airId;
 QVector<QString> date;
 QVector<int> miles;
 QVector<int> hash_table(200,-1);
+int mode=1;
+QVector<QVector<int>> hash_table_chain(200,QVector<int>(0));
 int doublecount = 1;
 int (*collision_solve)(int a);
 MainWindow::MainWindow(QWidget *parent)
@@ -56,6 +58,8 @@ int collision_methon3(int seed)
     return res;
 }
 
+
+
 MainWindow::~MainWindow()
 {
     delete ui;
@@ -89,56 +93,153 @@ void MainWindow::on_openfile_triggered()
 void MainWindow::on_pushButton_clicked()
 {
     ui->table->setRowCount(0);
+    if(ui->hash_method->currentText()=="链地址法")
+        mode=0;
     std::fill(hash_table.begin(),hash_table.end(),-1);
-    if(ui->hash_method->currentText()=="Linear probing")
+    if(mode)
     {
-        collision_solve=collision_method1;
-    }
-    else if(ui->hash_method->currentText()=="Double hashing")
-    {
-        collision_solve=collision_method2;
-    }
-    else if(ui->hash_method->currentText()=="Quadratic probing")
-    {
-        collision_solve=collision_methon3;
-    }
-    for(int i=0;i<idnum.size();i++)
-    {
-        doublecount=1;
-        int index=HashFunction(idnum[i]);//index为哈希值,hash_table[index]为原始数据的序号
-        while(hash_table[index]!=-1)
+        if(ui->hash_method->currentText()=="线性探测法")
         {
-            index=collision_solve(index);
+            collision_solve=collision_method1;
         }
-        hash_table[index]=i;
-    }
-    for(int i =0;i<hash_table.size();i++)
-    {
-        if(hash_table[i]!=-1)
+        else if(ui->hash_method->currentText()=="再散列法")
         {
-            ui->table->insertRow(i);
-            int j = hash_table[i];
-            QTableWidgetItem* newitem = new QTableWidgetItem(QString::number(i));
-            ui->table->setVerticalHeaderItem(i,newitem);
-            QTableWidgetItem* newitem1 = new QTableWidgetItem(idnum[j]);
-            ui->table->setItem(i,0,newitem1);
-            QTableWidgetItem* newitem2 = new QTableWidgetItem(name[j]);
-            ui->table->setItem(i,1,newitem2);
-            QTableWidgetItem* newitem3 = new QTableWidgetItem(airId[j]);
-            ui->table->setItem(i,2,newitem3);
-            QTableWidgetItem* newitem4 = new QTableWidgetItem(date[j]);
-            ui->table->setItem(i,3,newitem4);
-            QTableWidgetItem* newitem5 = new QTableWidgetItem(QString::number(miles[j]));
-            ui->table->setItem(i,4,newitem5);
+            collision_solve=collision_method2;
         }
-        else
+        else if(ui->hash_method->currentText()=="平方探测法")
         {
-            ui->table->insertRow(i);
-            QTableWidgetItem* newitem = new QTableWidgetItem(QString::number(i));
-            ui->table->setVerticalHeaderItem(i,newitem);
+            collision_solve=collision_methon3;
         }
+        for(int i=0;i<idnum.size();i++)
+        {
+            doublecount=1;
+            int index=HashFunction(idnum[i]);//index为哈希值,hash_table[index]为原始数据的序号
+            while(hash_table[index]!=-1)
+            {
+                index=collision_solve(index);
+            }
+            hash_table[index]=i;
+        }
+        for(int i =0;i<hash_table.size();i++)
+        {
+            if(hash_table[i]!=-1)
+            {
+                ui->table->insertRow(i);
+                int j = hash_table[i];
+                QTableWidgetItem* newitem = new QTableWidgetItem(QString::number(i));
+                ui->table->setVerticalHeaderItem(i,newitem);
+                QTableWidgetItem* newitem1 = new QTableWidgetItem(idnum[j]);
+                ui->table->setItem(i,0,newitem1);
+                QTableWidgetItem* newitem2 = new QTableWidgetItem(name[j]);
+                ui->table->setItem(i,1,newitem2);
+                QTableWidgetItem* newitem3 = new QTableWidgetItem(airId[j]);
+                ui->table->setItem(i,2,newitem3);
+                QTableWidgetItem* newitem4 = new QTableWidgetItem(date[j]);
+                ui->table->setItem(i,3,newitem4);
+                QTableWidgetItem* newitem5 = new QTableWidgetItem(QString::number(miles[j]));
+                ui->table->setItem(i,4,newitem5);
+            }
+            else
+            {
+                ui->table->insertRow(i);
+                QTableWidgetItem* newitem = new QTableWidgetItem(QString::number(i));
+                ui->table->setVerticalHeaderItem(i,newitem);
+            }
+        }
+        QVector<QString> idnum_copy=idnum;
+        for(int i=0;i<idnum_copy.size();i++)
+        {
+            int rowcount=0;
+            if(idnum_copy[i]==" ") continue;
+            int count=1;
+            int miles_sum=miles[i];
+            for(int j = i+1;j<idnum_copy.size();j++)
+            {
+                if(idnum_copy[j]==idnum_copy[i] && idnum_copy[j]!=" ")
+                {
+                    count++;
+                    miles_sum+=miles[j];
+                    idnum_copy[j]=" ";
+                }
+            }
+            if(count>1)
+            {
+                ui->vip_table->insertRow(rowcount);
+                QTableWidgetItem* newitem1 = new QTableWidgetItem(idnum[i]);
+                ui->vip_table->setItem(rowcount,0,newitem1);
+                QTableWidgetItem* newitem2 = new QTableWidgetItem(name[i]);
+                ui->vip_table->setItem(rowcount,1,newitem2);
+                QTableWidgetItem* newitem3 = new QTableWidgetItem(QString::number(count));
+                ui->vip_table->setItem(rowcount,2,newitem3);
+                QTableWidgetItem* newitem4 = new QTableWidgetItem(QString::number(miles_sum));
+                ui->vip_table->setItem(rowcount,3,newitem4);
+                rowcount++;
+            }
+        }
+        ui->vip_table->sortByColumn(2,Qt::DescendingOrder);
     }
-    QVector<QString> idnum_copy=idnum;
+    else{
+        for(int i=0;i<idnum.size();i++)
+        {
+            int index=HashFunction(idnum[i]);//index为哈希值,hash_table[index]为原始数据的序号
+            if(hash_table[index]!=-1)
+            {
+                hash_table_chain[index].push_back(i);
+            }
+            else hash_table[index]=i;
+        }
+        int rows=0;
+        for(int i =0;i<hash_table.size();i++)
+        {
+            if(hash_table[i]!=-1)
+            {
+                ui->table->insertRow(rows);
+                int j = hash_table[i];
+                QTableWidgetItem* newitem = new QTableWidgetItem(QString::number(i));
+                ui->table->setVerticalHeaderItem(rows,newitem);
+                QTableWidgetItem* newitem1 = new QTableWidgetItem(idnum[j]);
+                ui->table->setItem(rows,0,newitem1);
+                QTableWidgetItem* newitem2 = new QTableWidgetItem(name[j]);
+                ui->table->setItem(rows,1,newitem2);
+                QTableWidgetItem* newitem3 = new QTableWidgetItem(airId[j]);
+                ui->table->setItem(rows,2,newitem3);
+                QTableWidgetItem* newitem4 = new QTableWidgetItem(date[j]);
+                ui->table->setItem(rows,3,newitem4);
+                QTableWidgetItem* newitem5 = new QTableWidgetItem(QString::number(miles[j]));
+                ui->table->setItem(rows,4,newitem5);
+                rows++;
+                int counts = 1;
+                for(auto k=hash_table_chain[i].begin();k!=hash_table_chain[i].end();k++)
+                {
+                    ui->table->insertRow(rows);
+                    int j2 = *k;
+                    QTableWidgetItem* newitem5 = new QTableWidgetItem(QString::number(i)+"--"+QString::number(counts++));
+                    newitem5->setForeground(QColor(0,0,255));
+                    ui->table->setVerticalHeaderItem(rows,newitem5);
+                    QTableWidgetItem* newitem6 = new QTableWidgetItem(idnum[j2]);
+                    ui->table->setItem(rows,0,newitem6);
+                    QTableWidgetItem* newitem7 = new QTableWidgetItem(name[j2]);
+                    ui->table->setItem(rows,1,newitem7);
+                    QTableWidgetItem* newitem8 = new QTableWidgetItem(airId[j2]);
+                    ui->table->setItem(rows,2,newitem8);
+                    QTableWidgetItem* newitem9 = new QTableWidgetItem(date[j2]);
+                    ui->table->setItem(rows,3,newitem9);
+                    QTableWidgetItem* newitem0 = new QTableWidgetItem(QString::number(miles[j2]));
+                    ui->table->setItem(rows,4,newitem0);
+                    rows++;
+                }
+            }
+            else
+            {
+                ui->table->insertRow(rows);
+                QTableWidgetItem* newitem = new QTableWidgetItem(QString::number(i));
+                ui->table->setVerticalHeaderItem(rows,newitem);
+                rows++;
+            }
+        }
+
+    }
+    QVector<QString> idnum_copy=idnum;//vip
     for(int i=0;i<idnum_copy.size();i++)
     {
         int rowcount=0;
@@ -175,23 +276,14 @@ void MainWindow::on_search_by_ID_triggered()
 {
     bool ok;
     QString string = QInputDialog::getText(this,tr("查找"),tr("请输入身份证号："),QLineEdit::Normal,tr("身份证号"),&ok);
-    if(ok && string.size()==18)
+    if(mode==1)
     {
-        int index=HashFunction(string);
-        int times=0;
-        int res=hash_table[index];
-        if(res==-1)
+        if(ok && string.size()==18)
         {
-            QMessageBox errmsg;
-            errmsg.setText("查找失败！");
-            return;
-        }
-        doublecount=1;
-        while(idnum[res]!=string)
-        {
-            index=collision_solve(index);
-            res=hash_table[index];
-            if(++times==300 || res==-1)
+            int index=HashFunction(string);
+            int times=0;
+            int res=hash_table[index];
+            if(res==-1)
             {
                 QMessageBox errmsg;
                 errmsg.setText("查找失败！");
@@ -199,9 +291,73 @@ void MainWindow::on_search_by_ID_triggered()
                 errmsg.exec();
                 return;
             }
+            doublecount=1;
+            while(idnum[res]!=string)
+            {
+                index=collision_solve(index);
+                res=hash_table[index];
+                if(++times==300 || res==-1)
+                {
+                    QMessageBox errmsg;
+                    errmsg.setText("查找失败！");
+                    errmsg.setWindowTitle("error");
+                    errmsg.exec();
+                    return;
+                }
+            }
+            QMessageBox sucmsg;
+            sucmsg.setText("查找成功！散列值为："+QString::number(index));
+            sucmsg.setWindowTitle("success");
+            sucmsg.exec();
+            ui->table->verticalScrollBar()->setSliderPosition(index);
+            ui->table->selectRow(index);
         }
-        ui->table->verticalScrollBar()->setSliderPosition(index);
-        ui->table->selectRow(index);
+    }
+    else{
+        if(ok && string.size()==18)
+        {
+            int index=HashFunction(string);
+            bool suc=false;
+            int pos=0;
+            int res=hash_table[index];
+            if(res==-1)
+            {
+                QMessageBox errmsg;
+                errmsg.setText("查找失败！");
+                errmsg.setWindowTitle("error");
+                errmsg.exec();
+                return;
+            }
+            if(idnum[res]!=string)
+            {
+                for(auto m=hash_table_chain[index].begin();m!=hash_table_chain[index].end();m++)
+                {
+                    if(string==idnum[*m])
+                    {
+                        suc=true;
+                        pos=m-hash_table_chain[index].begin()+1;
+                        break;
+                    }
+                }
+            }
+            else{
+                suc=true;
+            }
+            if(suc)
+            {
+                int fore=0;
+                for(int n = 0;n<index;n++)
+                {
+                    fore+=hash_table_chain[n].size();
+                }
+                ui->table->verticalScrollBar()->setSliderPosition(index+pos+fore);
+                ui->table->selectRow(index+pos+fore);
+                QMessageBox sucmsg;
+                sucmsg.setText("查找成功！散列值为："+QString::number(index));
+                sucmsg.setWindowTitle("success");
+                sucmsg.exec();
+            }
+        }
     }
 }
 

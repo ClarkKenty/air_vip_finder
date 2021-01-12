@@ -27,6 +27,8 @@ private slots:
 
     void on_file_open_buttom_clicked();
 
+    void on_hash_settings_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

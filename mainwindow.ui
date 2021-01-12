@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>755</width>
     <height>856</height>
    </rect>
   </property>
@@ -24,10 +24,14 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>40</y>
-      <width>771</width>
-      <height>201</height>
+      <y>50</y>
+      <width>731</width>
+      <height>191</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:rgb(18,18,18);
+color:white;</string>
     </property>
    </widget>
    <widget class="QTableWidget" name="table">
@@ -35,9 +39,15 @@
      <rect>
       <x>10</x>
       <y>280</y>
-      <width>771</width>
+      <width>731</width>
       <height>311</height>
      </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
     </property>
     <property name="layoutDirection">
      <enum>Qt::LeftToRight</enum>
@@ -80,15 +90,19 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>600</y>
-      <width>271</width>
+      <x>20</x>
+      <y>660</y>
+      <width>121</width>
       <height>31</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>18</pointsize>
+     </font>
+    </property>
     <property name="styleSheet">
-     <string notr="true">font: 75 16pt &quot;Adobe Devanagari&quot;;
-color:rgb(0, 0, 0)</string>
+     <string notr="true"/>
     </property>
     <property name="text">
      <string>vip客户：</string>
@@ -97,9 +111,9 @@ color:rgb(0, 0, 0)</string>
    <widget class="QTableWidget" name="vip_table">
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>640</y>
-      <width>541</width>
+      <x>150</x>
+      <y>610</y>
+      <width>591</width>
       <height>141</height>
      </rect>
     </property>
@@ -107,8 +121,7 @@ color:rgb(0, 0, 0)</string>
      <enum>Qt::LeftToRight</enum>
     </property>
     <property name="styleSheet">
-     <string notr="true">color:rgb(255, 11, 64);
-background-color:white;</string>
+     <string notr="true"/>
     </property>
     <property name="verticalScrollBarPolicy">
      <enum>Qt::ScrollBarAlwaysOn</enum>
@@ -143,8 +156,8 @@ background-color:white;</string>
    <widget class="QPushButton" name="file_open_buttom">
     <property name="geometry">
      <rect>
-      <x>310</x>
-      <y>0</y>
+      <x>320</x>
+      <y>10</y>
       <width>101</width>
       <height>31</height>
      </rect>
@@ -157,7 +170,7 @@ background-color:white;</string>
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>10</y>
+      <y>20</y>
       <width>72</width>
       <height>21</height>
      </rect>
@@ -169,7 +182,7 @@ background-color:white;</string>
    <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>60</x>
+      <x>10</x>
       <y>240</y>
       <width>441</width>
       <height>41</height>
@@ -225,14 +238,27 @@ background-color:white;</string>
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>701</x>
+      <x>640</x>
       <y>260</y>
       <width>91</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>(表长：200)</string>
+     <string>表长：200</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="hash_settings">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>250</y>
+      <width>132</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>设置</string>
     </property>
    </widget>
   </widget>
@@ -241,7 +267,7 @@ background-color:white;</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>755</width>
      <height>32</height>
     </rect>
    </property>

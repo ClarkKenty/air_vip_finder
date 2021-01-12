@@ -12,16 +12,22 @@
 #include<QScrollBar>
 #include<QHeaderView>
 #include<QMessageBox>
+#include<QFormLayout>
+#include<QDialogButtonBox>
+int tablesize = 200;
 QVector<QString> idnum;
 QVector<QString> name;
 QVector<QString> airId;
 QVector<QString> date;
 QVector<int> miles;
-QVector<int> hash_table(200,-1);
+QVector<int> hash_table(tablesize,-1);
 int mode=1;
-QVector<QVector<int>> hash_table_chain(200,QVector<int>(0));
+QVector<QVector<int>> hash_table_chain(tablesize,QVector<int>(0));
 int doublecount = 1;
 int (*collision_solve)(int a);
+int collision_count = 0;
+int locate_again = 0;
+QVector<int> locatecount;
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -35,30 +41,30 @@ MainWindow::MainWindow(QWidget *parent)
 int HashFunction(QString seed)
 {
     std::hash<QString> hash_str;
-    return hash_str(seed)%199;
+    return hash_str(seed)%(tablesize-1);
 }
-
 
 int collision_method1(int seed)
 {
-    return (seed+1)%199;
+    locate_again++;
+    return (seed+1)%(tablesize-1);
 }
 
 int collision_method2(int seed)
 {
+    locate_again++;
     std::hash<QString> hash_str;
-    return hash_str(QString::number(seed))%199;
+    return hash_str(QString::number(seed))%(tablesize-1);
 }
 
 int collision_methon3(int seed)
 {
+    locate_again++;
     if(doublecount>hash_table.size()/2) return 0;
-    int res= (seed+(doublecount*doublecount))%199;
+    int res= (seed+(doublecount*doublecount))%(tablesize-1);
     doublecount++;
     return res;
 }
-
-
 
 MainWindow::~MainWindow()
 {
@@ -92,9 +98,17 @@ void MainWindow::on_openfile_triggered()
 
 void MainWindow::on_pushButton_clicked()
 {
+    collision_count = 0;
+    locate_again = 0;
+    locatecount.clear();
+    for(int i=0;i<hash_table_chain.size();i++)
+    {
+        hash_table_chain[i].clear();
+    }
     ui->table->setRowCount(0);
     if(ui->hash_method->currentText()=="链地址法")
         mode=0;
+    else mode = 1;
     std::fill(hash_table.begin(),hash_table.end(),-1);
     if(mode)
     {
@@ -113,12 +127,15 @@ void MainWindow::on_pushButton_clicked()
         for(int i=0;i<idnum.size();i++)
         {
             doublecount=1;
+            locate_again = 0;
             int index=HashFunction(idnum[i]);//index为哈希值,hash_table[index]为原始数据的序号
+            if(hash_table[index]!=-1)   collision_count++;
             while(hash_table[index]!=-1)
             {
                 index=collision_solve(index);
             }
             hash_table[index]=i;
+            locatecount.push_back(locate_again);
         }
         for(int i =0;i<hash_table.size();i++)
         {
@@ -146,37 +163,8 @@ void MainWindow::on_pushButton_clicked()
                 ui->table->setVerticalHeaderItem(i,newitem);
             }
         }
-        QVector<QString> idnum_copy=idnum;
-        for(int i=0;i<idnum_copy.size();i++)
-        {
-            int rowcount=0;
-            if(idnum_copy[i]==" ") continue;
-            int count=1;
-            int miles_sum=miles[i];
-            for(int j = i+1;j<idnum_copy.size();j++)
-            {
-                if(idnum_copy[j]==idnum_copy[i] && idnum_copy[j]!=" ")
-                {
-                    count++;
-                    miles_sum+=miles[j];
-                    idnum_copy[j]=" ";
-                }
-            }
-            if(count>1)
-            {
-                ui->vip_table->insertRow(rowcount);
-                QTableWidgetItem* newitem1 = new QTableWidgetItem(idnum[i]);
-                ui->vip_table->setItem(rowcount,0,newitem1);
-                QTableWidgetItem* newitem2 = new QTableWidgetItem(name[i]);
-                ui->vip_table->setItem(rowcount,1,newitem2);
-                QTableWidgetItem* newitem3 = new QTableWidgetItem(QString::number(count));
-                ui->vip_table->setItem(rowcount,2,newitem3);
-                QTableWidgetItem* newitem4 = new QTableWidgetItem(QString::number(miles_sum));
-                ui->vip_table->setItem(rowcount,3,newitem4);
-                rowcount++;
-            }
-        }
-        ui->vip_table->sortByColumn(2,Qt::DescendingOrder);
+
+
     }
     else{
         for(int i=0;i<idnum.size();i++)
@@ -211,6 +199,7 @@ void MainWindow::on_pushButton_clicked()
                 int counts = 1;
                 for(auto k=hash_table_chain[i].begin();k!=hash_table_chain[i].end();k++)
                 {
+                    collision_count++;
                     ui->table->insertRow(rows);
                     int j2 = *k;
                     QTableWidgetItem* newitem5 = new QTableWidgetItem(QString::number(i)+"--"+QString::number(counts++));
@@ -240,9 +229,9 @@ void MainWindow::on_pushButton_clicked()
 
     }
     QVector<QString> idnum_copy=idnum;//vip
+    int rowcount=0;
     for(int i=0;i<idnum_copy.size();i++)
     {
-        int rowcount=0;
         if(idnum_copy[i]==" ") continue;
         int count=1;
         int miles_sum=miles[i];
@@ -270,6 +259,25 @@ void MainWindow::on_pushButton_clicked()
         }
     }
     ui->vip_table->sortByColumn(2,Qt::DescendingOrder);
+    QMessageBox sucmsg;
+    QString mes;
+    if(mode==1)
+    {
+        int cc = 0;
+        for(int i =0;i<locatecount.size();i++)
+        {
+            if(locatecount[i] == 0) continue;
+            cc++;
+            mes+=QString::number(locatecount[i]) + " ";
+            if(cc%25==0&&i!=0)
+                mes+="\n";
+        }
+        sucmsg.setText("散列成功！总冲突次数为："+QString::number(collision_count) +", 重定位次数分别为：\n" + mes);
+    }
+    else
+        sucmsg.setText("散列成功！总冲突次数为："+QString::number(collision_count));
+    sucmsg.setWindowTitle("success");
+    sucmsg.exec();
 }
 
 void MainWindow::on_search_by_ID_triggered()
@@ -390,4 +398,52 @@ void MainWindow::on_file_open_buttom_clicked()
     input.seek(0);
     ui->outputText->setText(input.readAll());
     file.close();
+}
+
+void MainWindow::on_hash_settings_clicked()
+{
+    QDialog diag;
+    diag.setWindowTitle("自定义");
+    diag.resize(200,20);
+    QFormLayout form(&diag);
+    form.setVerticalSpacing(15);
+    form.addRow(new QLabel("设置："));
+    QLineEdit* newsize = new QLineEdit(&diag);
+    form.addRow("输入表长",newsize);
+    QDialogButtonBox button(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, &diag);
+    connect(&button,SIGNAL(accepted()),&diag,SLOT(accept()));
+    connect(&button,SIGNAL(rejected()),&diag,SLOT(reject()));
+    form.addRow(&button);
+    if(diag.exec()==QDialog::Accepted)
+    {
+        if(newsize->text()=="")
+        {
+            QMessageBox* warning = new QMessageBox();
+            warning->setWindowTitle("Warning");
+            warning->setText("输入为空！");
+            warning->show();
+            return;
+        }
+        if(newsize->text().toInt()<idnum.size()/0.6)
+        {
+            QMessageBox* warning = new QMessageBox();
+            warning->setWindowTitle("Warning");
+            warning->setText("表长过短！");
+            warning->show();
+            return;
+        }
+        if(newsize->text().toInt()>10000)
+        {
+            QMessageBox* warning = new QMessageBox();
+            warning->setWindowTitle("Warning");
+            warning->setText("表长太大！");
+            warning->show();
+            return;
+        }
+        tablesize = newsize->text().toUInt();
+        hash_table.resize(tablesize);
+        hash_table_chain.resize(tablesize);
+        ui->label_4->setText("表长：" + newsize->text());
+        diag.close();
+    }
 }

@@ -18,7 +18,7 @@ HEADERS += \
 FORMS += \
     mainwindow.ui
 
-RC_ICONS = airplane.ico
+RC_ICONS = air.ico
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

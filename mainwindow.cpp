@@ -14,19 +14,19 @@
 #include<QMessageBox>
 #include<QFormLayout>
 #include<QDialogButtonBox>
-int tablesize = 200;
-QVector<QString> idnum;
-QVector<QString> name;
-QVector<QString> airId;
-QVector<QString> date;
-QVector<int> miles;
+int tablesize = 200;//表长
+QVector<QString> idnum;//身份证号
+QVector<QString> name;//名字
+QVector<QString> airId;//航班号
+QVector<QString> date;//日期
+QVector<int> miles;//里程数
 QVector<int> hash_table(tablesize,-1);
 int mode=1;
 QVector<QVector<int>> hash_table_chain(tablesize,QVector<int>(0));
 int doublecount = 1;
 int (*collision_solve)(int a);
-int collision_count = 0;
-int locate_again = 0;
+int collision_count = 0;//冲突次数
+int locate_again = 0;//再散列次数
 QVector<int> locatecount;
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -98,6 +98,7 @@ void MainWindow::on_openfile_triggered()//选择文件对话框
 
 void MainWindow::on_pushButton_clicked()//用户点击HASH按钮
 {
+    ui->vip_table->setRowCount(0);
     collision_count = 0;//冲突次数
     locate_again = 0;//再散列次数
     locatecount.clear();

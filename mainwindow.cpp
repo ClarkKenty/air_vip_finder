@@ -38,26 +38,26 @@ MainWindow::MainWindow(QWidget *parent)
     ui->vip_table->QTableView::setSortingEnabled(false);
 }
 
-int HashFunction(QString seed)
+int HashFunction(QString seed)//调用STL中的HASH函数
 {
     std::hash<QString> hash_str;
     return hash_str(seed)%(tablesize-1);
 }
 
-int collision_method1(int seed)
+int collision_method1(int seed)//线性探测法
 {
     locate_again++;
     return (seed+1)%(tablesize-1);
 }
 
-int collision_method2(int seed)
+int collision_method2(int seed)//再散列法
 {
     locate_again++;
     std::hash<QString> hash_str;
     return hash_str(QString::number(seed))%(tablesize-1);
 }
 
-int collision_methon3(int seed)
+int collision_methon3(int seed)//平方探测法
 {
     locate_again++;
     if(doublecount>hash_table.size()/2) return 0;
@@ -71,7 +71,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_openfile_triggered()
+void MainWindow::on_openfile_triggered()//选择文件对话框
 {
     QString filename = QFileDialog::getOpenFileName(this,tr("文件对话框"),"D://airline_vip",tr("图片文件( * txt"));
     if(filename.length() == 0) {
@@ -96,10 +96,10 @@ void MainWindow::on_openfile_triggered()
     file.close();
 }
 
-void MainWindow::on_pushButton_clicked()
+void MainWindow::on_pushButton_clicked()//用户点击HASH按钮
 {
-    collision_count = 0;
-    locate_again = 0;
+    collision_count = 0;//冲突次数
+    locate_again = 0;//再散列次数
     locatecount.clear();
     for(int i=0;i<hash_table_chain.size();i++)
     {
@@ -110,7 +110,7 @@ void MainWindow::on_pushButton_clicked()
         mode=0;
     else mode = 1;
     std::fill(hash_table.begin(),hash_table.end(),-1);
-    if(mode)
+    if(mode)//用户选择闭散列方法
     {
         if(ui->hash_method->currentText()=="线性探测法")
         {
@@ -124,7 +124,7 @@ void MainWindow::on_pushButton_clicked()
         {
             collision_solve=collision_methon3;
         }
-        for(int i=0;i<idnum.size();i++)
+        for(int i=0;i<idnum.size();i++)//调用散列函数并解决冲突
         {
             doublecount=1;
             locate_again = 0;
@@ -132,7 +132,7 @@ void MainWindow::on_pushButton_clicked()
             if(hash_table[index]!=-1)   collision_count++;
             while(hash_table[index]!=-1)
             {
-                index=collision_solve(index);
+                index=collision_solve(index);//调用解决冲突函数
             }
             hash_table[index]=i;
             locatecount.push_back(locate_again);
@@ -166,7 +166,7 @@ void MainWindow::on_pushButton_clicked()
 
 
     }
-    else{
+    else{//用户选择闭散列方法
         for(int i=0;i<idnum.size();i++)
         {
             int index=HashFunction(idnum[i]);//index为哈希值,hash_table[index]为原始数据的序号
@@ -226,7 +226,6 @@ void MainWindow::on_pushButton_clicked()
                 rows++;
             }
         }
-
     }
     QVector<QString> idnum_copy=idnum;//vip
     int rowcount=0;
@@ -280,11 +279,11 @@ void MainWindow::on_pushButton_clicked()
     sucmsg.exec();
 }
 
-void MainWindow::on_search_by_ID_triggered()
+void MainWindow::on_search_by_ID_triggered()//用户使用搜索功能
 {
     bool ok;
     QString string = QInputDialog::getText(this,tr("查找"),tr("请输入身份证号："),QLineEdit::Normal,tr("身份证号"),&ok);
-    if(mode==1)
+    if(mode==1)//闭散列
     {
         if(ok && string.size()==18)
         {
@@ -321,7 +320,7 @@ void MainWindow::on_search_by_ID_triggered()
             ui->table->selectRow(index);
         }
     }
-    else{
+    else{//开散列
         if(ok && string.size()==18)
         {
             int index=HashFunction(string);
@@ -400,7 +399,7 @@ void MainWindow::on_file_open_buttom_clicked()
     file.close();
 }
 
-void MainWindow::on_hash_settings_clicked()
+void MainWindow::on_hash_settings_clicked()//用户自定义散列表长度
 {
     QDialog diag;
     diag.setWindowTitle("自定义");
